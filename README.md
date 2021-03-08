@@ -23,3 +23,9 @@ poetry shell
 # Add Dependency
 poetry add <package-name>
 ~~~
+
+## Run Tool
+Has to be run as super user
+~~~bash
+python sniff.py -i <interface_name>
+~~~
