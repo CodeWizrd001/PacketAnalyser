@@ -38,8 +38,8 @@ def process_packet(packet):
             load = packet[scapy.Raw].load
             keys = ["username", "password", "pass", "email"]
             for key in keys:
-                if key in load:
-                    print("\n\n\n[+] Possible password/username >> " + load + "\n\n\n")
+                if key in str(load):
+                    print("\n\n\n[+] Possible password/username >> " + str(load) + "\n\n\n")
                     break
 
 iface = get_interface()
