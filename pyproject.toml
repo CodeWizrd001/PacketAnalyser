@@ -7,6 +7,7 @@ authors = ["Wizard <codewizard001@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 scapy = "^2.4.4"
+PyPTables = "^1.0.6"
 
 [tool.poetry.dev-dependencies]
 
