@@ -1,5 +1,5 @@
 from tools.sniff import Sniffer
-from tools.utils import Log , initLog
+from tools.Logs import Log , initLog
 
 import argparse
 

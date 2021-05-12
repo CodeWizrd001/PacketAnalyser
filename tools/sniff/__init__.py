@@ -5,7 +5,6 @@ Module Designed For Sniffing and Handing over Data Processing'''
 from scapy.all import *
 
 from ..utils import Count
-from ..harden import Tables
 
 def expand(x) :
     yield x 
@@ -13,7 +12,7 @@ def expand(x) :
         x = x.payload
 
 class Sniffer :
-    def __init__(self,interface="eth0",store=False,functions={}) :
+    def __init__(self,interface="eth1",store=False,functions={}) :
         self.interface = interface
         self.store = store
         self.functions = functions
@@ -44,16 +43,19 @@ class Sniffer :
         }
 
         if packet.haslayer(IP) :
-            if str(packet[IP].src) == '192.168.175.129' :
+            # print(f'{packet[IP].src} -> {packet[IP].dst}')
+            if '172.16.21.' in str(packet[IP].src) :
                 return
 
         if packet.haslayer(TCP) and packet.haslayer(IP) :
             Count.addRequest(str(packet[IP].src)+':'+str(packet[TCP].dport),'tcp')
             F = packet['TCP'].flags 
             for f in Flags :
-                flags[f] = F & Flags[f]
+                flags[f] = bool(F & Flags[f])
+            # print(flags)    
             if flags['FIN'] & flags['URG'] & flags['PSH'] :
                 print(f'[+] Xmas Packet Detected From {packet[IP].src} to {packet[IP].dst}')
+                Count.tables.block(ip=str(packet[IP].src))
 
         elif packet.haslayer(UDP) and packet.haslayer(IP):
             Count.addRequest(str(packet[IP].src)+':'+str(packet[UDP].dport),'udp')

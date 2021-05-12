@@ -5,11 +5,9 @@ from scapy.all import *
 
 from ..harden import Tables
 
-verboseLevels = {
-    0 : 'logFile' ,
-    1 : 'stdout' ,
-    2 : 'both'
-}
+def getDummyService() :
+    honeypot = HoneyPot()
+    return honeypot
 
 class HoneyPot :
     def __init__(self,addr='0.0.0.0') :
@@ -57,22 +55,8 @@ class HoneyPot :
                 print("{} cause by {}".format(e,addr))
                 break
             finally :
-                print("Connection with {} terminated".format(addr))
-
-class Logger :
-    def __init__(self,verbose=1) :
-        self.verbose = verboseLevels[verbose] 
-
-    def setVerbose(self,level) :
-        self.verbose = verboseLevels[level]
-
-    def __call__(self,event) :
-        log = f"[{time.ctime()}] {event}"
-
-        if self.verbose in ['logFile','both']:
-            logFile.write(log)
-        if self.verbose in ['logFile','stdout']:
-            print(log)    
+                pass
+                # print("Connection with {} terminated".format(addr))
 
 class Request :
     udp = 0
@@ -133,6 +117,8 @@ class Counter :
             time.sleep(1)
         
     def addRequest(self,target,t='other') :
+        if target in self.tables.blocked :
+            return
         if target not in self.requests :
             self.requests[target] = Request()
 
@@ -146,10 +132,12 @@ class Counter :
             self.requests[target].other += 1
 
     def checkDOS(self) :
+        print(self.requests)
         for ip in self.requests :
             if self.requests[ip] > 100 :
                 src , port = ip.split(':')
-                self.tables.replace(src, port, 'eth0')
+                print(f'[+] DOS Detected on {port} from {src}')
+                self.tables.replace(src, port, 'eth1')
                 self.requests[ip].reset()
 
     def reset(self) :
@@ -159,11 +147,4 @@ class Counter :
         self.host = []
         self.requests = {}
 
-def initLog() :
-    global logFile 
-    logFile = open(f"Logs/Log_{'_'.join((time.ctime().split()[1:]))}",'w')
-    Log("Log File Created")
-
-logFile = None 
-Log = Logger()
 Count = Counter()
